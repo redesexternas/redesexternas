@@ -1495,6 +1495,78 @@
             border-bottom: 2px solid var(--secondary);
         }
 
+        /* NOVOS ESTILOS PARA FORMULÁRIO DE IMPORTAR CSV */
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: white;
+            color: var(--text-color);
+        }
+
+        .formato-tabela {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--info);
+        }
+
+        .formato-tabela h4 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .formato-tabela ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .formato-tabela code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover {
+            background-color: #e9ecef;
+        }
+
+        .radio-option input[type="radio"] {
+            margin: 0;
+            width: auto;
+        }
+
+        .radio-option label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .radio-info {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
         @keyframes slideIn {
             from {
                 transform: translateX(100%);
@@ -1783,10 +1855,12 @@
                     Gerenciar Coordenadas
                 </h2>
                 
-                <!-- Abas de navegação -->
+                <!-- Abas de navegação - ATUALIZADA COM NOVA ABA -->
                 <div class="abas-navegacao">
                     <div class="aba active" id="aba-consulta">Consulta de Coordenadas</div>
                     <div class="aba" id="aba-caixas">Caixas Disponíveis</div>
+                    <!-- NOVA ABA DE IMPORTAR CSV -->
+                    <div class="aba" id="aba-importar">Importar CSV</div>
                 </div>
 
                 <!-- Conteúdo da aba Consulta -->
@@ -2062,6 +2136,109 @@
                                 <button type="button" id="btn-limpar-caixas" class="btn-danger">Limpar Formulário</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                <!-- NOVO CONTEÚDO: Aba Importar CSV - FORMULÁRIO CORRIGIDO -->
+                <div id="conteudo-importar" class="conteudo-aba">
+                    <div class="card">
+                        <h3>📤 Importar Dados via CSV</h3>
+                        <p class="categoria-info">
+                            <strong>💡 Importante:</strong> Use esta ferramenta para atualizar a base de dados a partir de um arquivo CSV. O arquivo deve conter cabeçalhos na primeira linha.
+                        </p>
+                        
+                        <div class="form-container-materiais" style="margin-top: 20px;">
+                            <div class="form-group">
+                                <label for="tabela-destino">Tabela de Destino *</label>
+                                <select id="tabela-destino" class="form-control" required>
+                                    <option value="">Selecione a tabela...</option>
+                                    <option value="coordenadas">coordenadas</option>
+                                    <option value="cx_disponiveis">cx_disponiveis (Caixas Disponíveis)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="arquivo-csv">Arquivo CSV *</label>
+                                <input type="file" id="arquivo-csv" accept=".csv, text/csv" class="form-control" required>
+                                <small class="categoria-info">Formatos suportados: .csv. Tamanho máximo sugerido: 5MB.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Modo de Importação</label>
+                                <div class="radio-options-container" style="margin-top: 10px;">
+                                    <div class="radio-option">
+                                        <input type="radio" id="modo-adicionar" name="modo-importacao" value="adicionar" checked>
+                                        <label for="modo-adicionar">Apenas Adicionar Novos Registros</label>
+                                    </div>
+                                    <div class="radio-option">
+                                        <input type="radio" id="modo-substituir" name="modo-importacao" value="substituir">
+                                        <label for="modo-substituir">Substituir Tabela (Mais Lento)</label>
+                                    </div>
+                                </div>
+                                <p class="radio-info">
+                                    <strong>"Apenas Adicionar":</strong> Insere apenas os novos registros que não existem na tabela.<br>
+                                    <strong>"Substituir Tabela":</strong> Apaga todos os dados atuais da tabela antes de importar.
+                                </p>
+                            </div>
+
+                            <div id="preview-container" style="display: none; margin-top: 20px;">
+                                <h4>Prévia dos Dados (Primeiras 5 linhas)</h4>
+                                <div class="table-container">
+                                    <table id="preview-tabela" style="font-size: 0.9rem;">
+                                        <thead id="preview-cabecalho"></thead>
+                                        <tbody id="preview-corpo"></tbody>
+                                    </table>
+                                </div>
+                                <p class="categoria-info" id="preview-info"></p>
+                            </div>
+
+                            <div class="form-actions-materiais" style="margin-top: 25px;">
+                                <button type="button" id="btn-processar-csv" class="btn-primary-materiais" disabled>
+                                    <i class="fas fa-upload"></i> Processar e Importar CSV
+                                </button>
+                                <button type="button" id="btn-limpar-importacao" class="btn-secondary-materiais">
+                                    <i class="fas fa-times"></i> Limpar
+                                </button>
+                            </div>
+
+                            <div id="status-importacao" class="status-message-materiais" style="display: none; margin-top: 20px;"></div>
+                            <div id="progresso-importacao" style="display: none; margin-top: 15px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span id="progresso-texto">Processando...</span>
+                                    <span id="progresso-porcentagem">0%</span>
+                                </div>
+                                <div style="height: 10px; background-color: #e9ecef; border-radius: 5px; overflow: hidden;">
+                                    <div id="progresso-barra" style="height: 100%; width: 0%; background-color: var(--success); transition: width 0.3s;"></div>
+                                </div>
+                                <p id="detalhes-importacao" class="categoria-info" style="margin-top: 10px; font-size: 0.85rem;"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📋 Formatos Esperados do CSV</h3>
+                        <div class="formato-tabela">
+                            <h4>Para a tabela <code>coordenadas</code>:</h4>
+                            <p>Colunas esperadas (os nomes devem estar na primeira linha):</p>
+                            <ul>
+                                <li><code>Nome</code> (Texto) - Nome do local</li>
+                                <li><code>Tipo de Local</code> (Texto) - Categoria/classificação</li>
+                                <li><code>X</code> (Número) - Longitude</li>
+                                <li><code>Y</code> (Número) - Latitude</li>
+                            </ul>
+                            <p><strong>Exemplo de linha:</strong> <code>Caixa 001,Caixa CE,-46.6333,-23.5505</code></p>
+                        </div>
+                        <div class="formato-tabela" style="margin-top: 15px;">
+                            <h4>Para a tabela <code>cx_disponiveis</code>:</h4>
+                            <p>Colunas esperadas:</p>
+                            <ul>
+                                <li><code>nome</code> (Texto) - Nome da caixa</li>
+                                <li><code>categoria</code> (Texto, opcional) - Ex: "Caixa CE"</li>
+                                <li><code>usuario_cadastro</code> (Texto) - Quem cadastrou</li>
+                                <li><code>status</code> (Texto, opcional) - "disponivel" (padrão)</li>
+                            </ul>
+                            <p><strong>Exemplo de linha:</strong> <code>CAIXA A,Caixa CE,João Silva,disponivel</code></p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -3600,7 +3777,7 @@
                 logsFiltrados = logsFiltrados.filter(log => log.usuario === usuario);
             }
             
-            if (modulo) {
+            if (modo) {
                 logsFiltrados = logsFiltrados.filter(log => log.modulo === modulo);
             }
             
@@ -4109,6 +4286,7 @@
             // Abas de navegação
             const abaConsulta = document.getElementById('aba-consulta');
             const abaCaixas = document.getElementById('aba-caixas');
+            const abaImportar = document.getElementById('aba-importar');
 
             if (abaConsulta) {
                 abaConsulta.addEventListener('click', function() {
@@ -4119,6 +4297,12 @@
             if (abaCaixas) {
                 abaCaixas.addEventListener('click', function() {
                     alternarAba('caixas');
+                });
+            }
+
+            if (abaImportar) {
+                abaImportar.addEventListener('click', function() {
+                    alternarAba('importar');
                 });
             }
 
@@ -4196,6 +4380,9 @@
             // Configurar sistema de caixas
             configurarSistemaCaixas();
 
+            // Configurar sistema de importação CSV
+            configurarImportacaoCSV();
+
             // Inicializar sistema de coordenadas
             inicializarSistemaCoordenadas();
         }
@@ -4219,6 +4406,9 @@
                     usuarioCadastroInput.value = usuarioLogado.nome;
                 }
                 atualizarListaCaixas();
+            } else if (aba === 'importar') {
+                // Limpar formulário de importação
+                limparFormularioImportacao();
             }
         }
 
@@ -4895,6 +5085,361 @@
         async function carregarCoordenadas() {
             console.log('📍 Carregando coordenadas...');
             await atualizarTabela();
+        }
+
+        // =============================================
+        // SISTEMA DE IMPORTACAO CSV - FUNCOES CORRIGIDAS
+        // =============================================
+
+        function configurarImportacaoCSV() {
+            const abaImportar = document.getElementById('aba-importar');
+            const conteudoImportar = document.getElementById('conteudo-importar');
+            const inputArquivo = document.getElementById('arquivo-csv');
+            const btnProcessar = document.getElementById('btn-processar-csv');
+            const btnLimpar = document.getElementById('btn-limpar-importacao');
+            const previewContainer = document.getElementById('preview-container');
+
+            // Alternar para aba de importação
+            if (abaImportar) {
+                abaImportar.addEventListener('click', function() {
+                    alternarAba('importar');
+                });
+            }
+
+            // Processar seleção de arquivo
+            if (inputArquivo) {
+                inputArquivo.addEventListener('change', function(e) {
+                    const arquivo = e.target.files[0];
+                    if (arquivo && arquivo.type.includes('csv')) {
+                        lerPreviewCSV(arquivo);
+                        btnProcessar.disabled = false;
+                    } else {
+                        mostrarStatusImportacao('Por favor, selecione um arquivo CSV válido.', 'error');
+                        btnProcessar.disabled = true;
+                        previewContainer.style.display = 'none';
+                    }
+                });
+            }
+
+            // Processar importação
+            if (btnProcessar) {
+                btnProcessar.addEventListener('click', function() {
+                    iniciarImportacaoCSV();
+                });
+            }
+
+            // Limpar formulário
+            if (btnLimpar) {
+                btnLimpar.addEventListener('click', function() {
+                    limparFormularioImportacao();
+                });
+            }
+        }
+
+        // Limpar formulário de importação
+        function limparFormularioImportacao() {
+            const inputArquivo = document.getElementById('arquivo-csv');
+            const btnProcessar = document.getElementById('btn-processar-csv');
+            const previewContainer = document.getElementById('preview-container');
+            const statusImportacao = document.getElementById('status-importacao');
+            const progressoImportacao = document.getElementById('progresso-importacao');
+            
+            if (inputArquivo) inputArquivo.value = '';
+            if (document.getElementById('tabela-destino')) {
+                document.getElementById('tabela-destino').value = '';
+            }
+            if (btnProcessar) btnProcessar.disabled = true;
+            if (previewContainer) previewContainer.style.display = 'none';
+            if (statusImportacao) statusImportacao.style.display = 'none';
+            if (progressoImportacao) progressoImportacao.style.display = 'none';
+        }
+
+        // Ler prévia do CSV
+        function lerPreviewCSV(arquivo) {
+            const leitor = new FileReader();
+            const previewContainer = document.getElementById('preview-container');
+            const previewCabecalho = document.getElementById('preview-cabecalho');
+            const previewCorpo = document.getElementById('preview-corpo');
+            const previewInfo = document.getElementById('preview-info');
+
+            leitor.onload = function(e) {
+                const conteudo = e.target.result;
+                const linhas = conteudo.split('\n').filter(linha => linha.trim() !== '');
+                
+                if (linhas.length < 2) {
+                    mostrarStatusImportacao('O arquivo CSV deve ter pelo menos um cabeçalho e uma linha de dados.', 'error');
+                    previewContainer.style.display = 'none';
+                    return;
+                }
+
+                // Parse simples do CSV
+                const cabecalhos = parseCSVLinha(linhas[0]);
+                const dadosPreview = [];
+                
+                // Processar até 5 linhas para preview
+                for (let i = 1; i < Math.min(linhas.length, 6); i++) {
+                    dadosPreview.push(parseCSVLinha(linhas[i]));
+                }
+
+                // Exibir cabeçalhos
+                previewCabecalho.innerHTML = '<tr>' + cabecalhos.map(h => `<th>${h}</th>`).join('') + '</tr>';
+                
+                // Exibir dados
+                previewCorpo.innerHTML = dadosPreview.map(linha => 
+                    '<tr>' + linha.map(celula => `<td>${celula || ''}</td>`).join('') + '</tr>'
+                ).join('');
+
+                // Exibir informações
+                previewInfo.textContent = `Total de linhas no arquivo: ${linhas.length - 1} | Colunas: ${cabecalhos.length}`;
+                previewContainer.style.display = 'block';
+            };
+
+            leitor.readAsText(arquivo, 'UTF-8');
+        }
+
+        // Parse simples de uma linha CSV
+        function parseCSVLinha(linha) {
+            const resultado = [];
+            let dentroDasAspas = false;
+            let valorAtual = '';
+            
+            for (let i = 0; i < linha.length; i++) {
+                const caractere = linha[i];
+                const proximoCaractere = linha[i + 1];
+                
+                if (caractere === '"') {
+                    if (dentroDasAspas && proximoCaractere === '"') {
+                        valorAtual += '"';
+                        i++; // Pular próxima aspa
+                    } else {
+                        dentroDasAspas = !dentroDasAspas;
+                    }
+                } else if (caractere === ',' && !dentroDasAspas) {
+                    resultado.push(valorAtual);
+                    valorAtual = '';
+                } else {
+                    valorAtual += caractere;
+                }
+            }
+            
+            resultado.push(valorAtual);
+            return resultado;
+        }
+
+        // Iniciar importação do CSV
+        async function iniciarImportacaoCSV() {
+            const tabelaDestino = document.getElementById('tabela-destino').value;
+            const arquivoInput = document.getElementById('arquivo-csv');
+            const modo = document.querySelector('input[name="modo-importacao"]:checked').value;
+            
+            if (!tabelaDestino) {
+                mostrarStatusImportacao('Selecione a tabela de destino.', 'error');
+                return;
+            }
+            
+            if (!arquivoInput.files[0]) {
+                mostrarStatusImportacao('Selecione um arquivo CSV.', 'error');
+                return;
+            }
+
+            // Verificar permissões
+            if (tabelaDestino === 'coordenadas' && !verificarAcesso('ExcluirCoordenadas')) {
+                mostrarStatusImportacao('Você não tem permissão para importar coordenadas.', 'error');
+                return;
+            }
+            
+            if (tabelaDestino === 'cx_disponiveis' && !verificarAcesso('Administrador')) {
+                mostrarStatusImportacao('Apenas administradores podem importar caixas.', 'error');
+                return;
+            }
+
+            const arquivo = arquivoInput.files[0];
+            const leitor = new FileReader();
+            
+            leitor.onload = async function(e) {
+                const conteudo = e.target.result;
+                const linhas = conteudo.split('\n').filter(linha => linha.trim() !== '');
+                
+                if (linhas.length < 2) {
+                    mostrarStatusImportacao('Arquivo CSV inválido ou vazio.', 'error');
+                    return;
+                }
+
+                const cabecalhos = parseCSVLinha(linhas[0]);
+                const dados = [];
+                
+                // Parse de todos os dados
+                for (let i = 1; i < linhas.length; i++) {
+                    const valores = parseCSVLinha(linhas[i]);
+                    if (valores.length === cabecalhos.length) {
+                        const registro = {};
+                        cabecalhos.forEach((cabecalho, index) => {
+                            registro[cabecalho.trim()] = valores[index] ? valores[index].trim() : '';
+                        });
+                        dados.push(registro);
+                    }
+                }
+
+                // Mostrar interface de progresso
+                document.getElementById('progresso-importacao').style.display = 'block';
+                document.getElementById('status-importacao').style.display = 'none';
+                
+                // Executar importação
+                const resultado = await executarImportacaoCSV(tabelaDestino, dados, modo);
+                
+                // Mostrar resultado
+                if (resultado.sucesso) {
+                    mostrarStatusImportacao(
+                        `✅ Importação concluída! ${resultado.importados} de ${dados.length} registros importados com sucesso.`,
+                        'success'
+                    );
+                    
+                    // Registrar log
+                    await registrarLog(
+                        usuarioLogado.nome, 
+                        `Importação CSV para ${tabelaDestino}`, 
+                        'Importação', 
+                        `Modo: ${modo}, Registros: ${resultado.importados}/${dados.length}, Falhas: ${resultado.falhas}`
+                    );
+                    
+                    // Atualizar interface se necessário
+                    if (tabelaDestino === 'coordenadas') {
+                        setTimeout(() => atualizarTabela(), 1000);
+                    } else if (tabelaDestino === 'cx_disponiveis') {
+                        setTimeout(() => atualizarListaCaixas(), 1000);
+                    }
+                } else {
+                    mostrarStatusImportacao(`❌ Erro na importação: ${resultado.erro}`, 'error');
+                }
+                
+                // Esconder barra de progresso após 5 segundos
+                setTimeout(() => {
+                    document.getElementById('progresso-importacao').style.display = 'none';
+                }, 5000);
+            };
+            
+            leitor.readAsText(arquivo, 'UTF-8');
+        }
+
+        // Executar importação no banco de dados
+        async function executarImportacaoCSV(tabelaDestino, dados, modo) {
+            const progressoBarra = document.getElementById('progresso-barra');
+            const progressoTexto = document.getElementById('progresso-texto');
+            const progressoPorcentagem = document.getElementById('progresso-porcentagem');
+            const detalhesImportacao = document.getElementById('detalhes-importacao');
+            
+            let importados = 0;
+            let falhas = 0;
+            const erros = [];
+            
+            try {
+                // Modo "substituir": limpar tabela primeiro
+                if (modo === 'substituir') {
+                    progressoTexto.textContent = 'Limpando tabela existente...';
+                    progressoPorcentagem.textContent = '0%';
+                    progressoBarra.style.width = '0%';
+                    
+                    // Nota: Para produção, considere desabilitar triggers temporariamente para performance
+                    const { error } = await supabase.from(tabelaDestino).delete().neq('id', 0);
+                    if (error) throw error;
+                }
+                
+                // Importar registros um por um
+                for (let i = 0; i < dados.length; i++) {
+                    const registro = dados[i];
+                    
+                    // Atualizar progresso
+                    const porcentagem = Math.round((i / dados.length) * 100);
+                    progressoPorcentagem.textContent = `${porcentagem}%`;
+                    progressoBarra.style.width = `${porcentagem}%`;
+                    progressoTexto.textContent = `Processando registro ${i + 1} de ${dados.length}`;
+                    
+                    try {
+                        // Preparar registro baseado na tabela
+                        let registroParaInserir;
+                        
+                        if (tabelaDestino === 'coordenadas') {
+                            // Mapear para estrutura de coordenadas
+                            registroParaInserir = {
+                                Nome: registro.Nome || registro.nome || '',
+                                'Tipo de Local': registro['Tipo de Local'] || registro.tipo_local || 'Caixa CE',
+                                X: parseFloat(registro.X || registro.x || registro.Longitude || 0),
+                                Y: parseFloat(registro.Y || registro.y || registro.Latitude || 0)
+                            };
+                            
+                            // Validar coordenadas
+                            if (!registroParaInserir.Nome || isNaN(registroParaInserir.X) || isNaN(registroParaInserir.Y)) {
+                                throw new Error(`Registro ${i + 1}: Dados inválidos`);
+                            }
+                        } 
+                        else if (tabelaDestino === 'cx_disponiveis') {
+                            // Mapear para estrutura de caixas
+                            registroParaInserir = {
+                                nome: registro.nome || registro.Nome || '',
+                                categoria: registro.categoria || 'Caixa CE',
+                                usuario_cadastro: registro.usuario_cadastro || usuarioLogado.nome,
+                                status: registro.status || 'disponivel',
+                                data_cadastro: new Date().toISOString()
+                            };
+                            
+                            // Validar caixa
+                            if (!registroParaInserir.nome) {
+                                throw new Error(`Registro ${i + 1}: Nome da caixa é obrigatório`);
+                            }
+                        }
+                        
+                        // Inserir no Supabase
+                        const { error } = await supabase
+                            .from(tabelaDestino)
+                            .insert([registroParaInserir]);
+                        
+                        if (error) {
+                            throw new Error(`Erro Supabase: ${error.message}`);
+                        }
+                        
+                        importados++;
+                        
+                    } catch (erroRegistro) {
+                        falhas++;
+                        erros.push(`Linha ${i + 2}: ${erroRegistro.message}`);
+                        detalhesImportacao.textContent = `Último erro: ${erroRegistro.message}`;
+                    }
+                    
+                    // Pequena pausa para não sobrecarregar a API
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
+                
+                // Progresso final
+                progressoPorcentagem.textContent = '100%';
+                progressoBarra.style.width = '100%';
+                progressoTexto.textContent = 'Importação concluída!';
+                
+                return {
+                    sucesso: true,
+                    importados,
+                    falhas,
+                    erros: erros.slice(0, 5) // Retornar apenas primeiros 5 erros
+                };
+                
+            } catch (erroGeral) {
+                return {
+                    sucesso: false,
+                    erro: erroGeral.message,
+                    importados,
+                    falhas
+                };
+            }
+        }
+
+        // Mostrar status da importação
+        function mostrarStatusImportacao(mensagem, tipo) {
+            const statusElement = document.getElementById('status-importacao');
+            statusElement.textContent = mensagem;
+            statusElement.className = `status-message-materiais status-${tipo}-materiais`;
+            statusElement.style.display = 'block';
+            
+            // Rolar para o status
+            statusElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         // =============================================
